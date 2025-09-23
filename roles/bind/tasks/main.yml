@@ -1,0 +1,43 @@
+---
+- name: "BIND | Unarchive offline packages"
+  unarchive:
+    src: ../../offline_files/bind9-offline-packages.tar.gz
+    dest: /tmp/
+    # creates: /tmp/bind9-offline-packages # Use a more specific check below
+  when: not ansible_check_mode 
+- name: "BIND | Install from offline packages"
+  shell: "DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/bind9-offline-package/*.deb || apt-get -f -y install"
+  args:
+    creates: /usr/sbin/named # This task won't run if BIND is already installed
+  become: yes
+
+- name: "BIND | Configure main options for offline use"
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify: restart bind
+
+- name: "BIND | Configure default zones for offline use"
+  template:
+    src: named.conf.default-zones.j2
+    dest: /etc/bind/named.conf.default-zones
+  notify: restart bind
+
+- name: "BIND | Configure local zone definition"
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify: restart bind
+
+- name: "BIND | Generate zone data file from variables"
+  template:
+    src: db.lan.j2
+    dest: "/etc/bind/db.{{ domain_name }}"
+  notify: restart bind
+
+- name: "BIND | Ensure service is started and enabled"
+  service:
+    name: named
+    state: started
+    enabled: yes
+  when: not ansible_check_mode 

@@ -1,0 +1,11 @@
+# This file is managed by Ansible. Do not edit manually.
+network:
+  version: 2
+  ethernets:
+    {{ ansible_default_ipv4.interface }}:
+      # We are only overriding the DNS settings. Other settings like
+      # DHCP or static IP configuration are preserved from other
+      # netplan files (e.g., 00-installer-config.yaml).
+      nameservers:
+        search: [ {{ domain_name }} ]
+        addresses: [ "{{ dns_server_ip }}" ]

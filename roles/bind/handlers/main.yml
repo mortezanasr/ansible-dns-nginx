@@ -1,0 +1,7 @@
+---
+- name: restart bind
+  service:
+    name: named
+    state: restarted
+  become: yes
+  when: not ansible_check_mode

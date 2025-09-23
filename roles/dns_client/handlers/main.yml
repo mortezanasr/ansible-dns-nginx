@@ -1,0 +1,5 @@
+---
+- name: apply netplan
+  command: netplan apply
+  become: yes
+  when: not ansible_check_mode

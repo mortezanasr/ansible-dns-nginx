@@ -1,0 +1,23 @@
+$TTL    86400
+@       IN      SOA     ns1.{{ domain_name }}. admin.{{ domain_name }}. (
+                      {{ ansible_date_time.epoch }}         ; Serial (auto-generated from timestamp)
+                      604800         ; Refresh
+                      86400         ; Retry
+                      2419200         ; Expire
+                      86400 )       ; Negative Cache TTL
+;
+@           IN      NS      ns1.{{ domain_name }}.
+
+; --- A Records for main servers ---
+; These are generated from the 'servers' variable in the playbook.
+ns1         IN      A       {{ hostvars['dns-proxy']['ansible_host'] }}
+proxy       IN      A       {{ hostvars['dns-proxy']['ansible_host'] }}
+{% for hostname, ip in app_server_ips.items() %}
+{{ hostname }} IN      A       {{ ip }}
+{% endfor %}
+
+; --- CNAME Records for services pointing to the proxy ---
+; These are generated from the 'services' variable in the playbook.
+{% for service in services %}
+{{ service.name }} IN      CNAME   proxy.{{ domain_name }}.
+{% endfor %}

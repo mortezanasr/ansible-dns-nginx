@@ -1,0 +1,19 @@
+# #################################################################
+# Ansible Inventory File
+#
+# Replace the placeholder IPs (e.g., 192.168.1.10) with the
+# actual IP addresses of your servers.
+# #################################################################
+
+[dns_proxy_server]
+# This is the central server where BIND9 and Nginx will be installed.
+# There should only be one server in this group.
+dns-proxy ansible_host=192.168.1.10
+
+[application_servers]
+# These are all other servers in your network that need to be configured
+# as DNS clients to resolve internal hostnames.
+# Add as many servers as you have.
+app-server-01 ansible_host=192.168.1.20
+app-server-02 ansible_host=192.168.1.21
+# app-server-03 ansible_host=192.168.1.22

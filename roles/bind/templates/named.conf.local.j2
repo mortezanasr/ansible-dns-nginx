@@ -1,0 +1,7 @@
+// This file is managed by Ansible. Do not edit manually.
+// It defines the local zones this BIND server is authoritative for.
+
+zone "{{ domain_name }}" {
+    type master;
+    file "/etc/bind/db.{{ domain_name }}";
+};

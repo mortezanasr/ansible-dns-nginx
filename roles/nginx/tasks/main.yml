@@ -1,0 +1,39 @@
+---
+- name: "Nginx | Unarchive offline packages"
+  unarchive:
+    src: ../../offline_files/nginx-offline-package.tar.gz
+    dest: /tmp/
+    creates: /tmp/nginx-offline-package
+  when: not ansible_check_mode 
+- name: "Nginx | Install from offline packages"
+  shell: "DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/nginx-offline-package/*.deb || apt-get -f -y install"
+  args:
+    creates: /usr/sbin/nginx
+  when: not ansible_check_mode  
+  become: yes
+
+- name: "Nginx | Template the main reverse proxy configuration"
+  template:
+    src: reverse-proxy.conf.j2
+    dest: "/etc/nginx/sites-available/{{ domain_name }}.conf"
+  notify: restart nginx
+
+- name: "Nginx | Enable the new site configuration"
+  file:
+    src: "/etc/nginx/sites-available/{{ domain_name }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ domain_name }}.conf"
+    state: link
+  notify: restart nginx
+  when: not ansible_check_mode
+- name: "Nginx | Remove default Nginx site to avoid conflicts"
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+  when: not ansible_check_mode
+- name: "Nginx | Ensure service is started and enabled"
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  when: not ansible_check_mode  

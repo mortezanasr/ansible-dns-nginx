@@ -1,0 +1,35 @@
+# ###############################################################
+#  Main HTTP to HTTPS redirect block.
+#  This server block catches all HTTP traffic and redirects it
+#  to the secure HTTPS version.
+# ###############################################################
+server {
+    listen 80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
+
+
+# ###############################################################
+#  HTTPS Server Blocks
+#  Generated automatically from the 'services' list in the playbook.
+# ###############################################################
+{% for service in services %}
+server {
+    listen 443 ssl;
+    server_name {{ service.name }}.{{ domain_name }};
+
+    # SSL Certificate Configuration
+    ssl_certificate /etc/nginx/ssl/_wildcard.{{ domain_name }}.pem;
+    ssl_certificate_key /etc/nginx/ssl/_wildcard.{{ domain_name }}-key.pem;
+
+    # Proxy Configuration
+    location / {
+        proxy_pass http://{{ hostvars[service.target_host]['ansible_host'] }}:{{ service.port }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+{% endfor %}

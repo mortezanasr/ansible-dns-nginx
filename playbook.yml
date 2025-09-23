@@ -1,0 +1,54 @@
+---
+# ##########################################################################
+#                       MAIN ANSIBLE PLAYBOOK
+#
+# This is the central control file. All user-configurable variables
+# are defined in the 'vars' section of each play.
+# ##########################################################################
+
+- name: Play 1 - Configure the DNS & Reverse Proxy Server
+  hosts: dns_proxy_server
+  become: yes
+  vars:
+    # ----------------------------------------------------------------------
+    #                     <<< GENERAL SETTINGS >>>
+    # Replace these placeholder values with your actual configuration.
+    # ----------------------------------------------------------------------
+    domain_name: "example.lan"
+
+    # Define the IP addresses of your main application servers.
+    # These will be used to create 'A' records in BIND.
+    # The IP for 'ns1' and 'proxy' is automatically detected.
+    app_server_ips:
+      app-server-01: "192.168.1.20"
+      app-server-02: "192.168.1.21"
+      # app-server-03: "192.168.1.22"
+
+    # Define the list of all services to be exposed via the reverse proxy.
+    # 'name': The subdomain for the service (e.g., grafana.example.lan).
+    # 'target_host': The hostname (from inventory) where the service runs.
+    # 'port': The port the service is listening on.
+    services:
+      # --- Services on app-server-01 ---
+      - { name: "grafana", target_host: "app-server-01", port: 3000 }
+      - { name: "prometheus", target_host: "app-server-01", port: 9090 }
+
+      # --- Services on app-server-02 ---
+      - { name: "vault", target_host: "app-server-02", port: 8200 }
+      - { name: "portainer", target_host: "app-server-02", port: 9000 }
+
+  roles:
+    - role: bind        # To be created
+    - role: mkcert      # To be created
+    - role: nginx       # To be created
+
+- name: Play 2 - Configure Application Servers as DNS Clients
+  hosts: application_servers
+  become: yes
+  vars:
+    # The IP of the DNS server they should point to.
+    dns_server_ip: "{{ hostvars['dns-proxy']['ansible_host'] }}"
+    domain_name: "example.lan" # Must match the domain_name from Play 1
+
+  roles:
+    - role: dns_client  # To be created

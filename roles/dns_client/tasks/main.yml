@@ -1,0 +1,10 @@
+---
+- name: "DNS Client | Configure Netplan to use the new internal DNS"
+  template:
+    src: 01-custom-dns.yaml.j2
+    dest: /etc/netplan/01-custom-dns.yaml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: apply netplan
+  become: yes
