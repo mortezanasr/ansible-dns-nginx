@@ -1,4 +1,4 @@
-# Ansible Playbook for Self-Hosted LAN Infrastructure
+ample# Ansible Playbook for Self-Hosted LAN Infrastructure
 
 This project automates the deployment of a robust, offline-first network infrastructure using Ansible. It sets up a central server to act as a DNS resolver, a reverse proxy, and a local Certificate Authority (CA), providing secure HTTPS access to all internal services.
 
@@ -93,7 +93,7 @@ Open the `playbook.yml` file and edit the `vars` section.
 ```yaml
 # Example vars from playbook.yml
 vars:
-  domain_name: "sirat.lan"
+  domain_name: "example.lan"
 
   app_server_ips:
     app-server-01: "192.168.1.20"
