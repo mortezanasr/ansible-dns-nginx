@@ -100,8 +100,8 @@ vars:
     app-server-02: "192.168.1.21"
 
   services:
-    - { name: "grafana", target_host: "app-server-01", port: 3000 }
-    - { name: "vault", target_host: "app-server-02", port: 8200 }
+    - { name: "x", target_host: "app-server-01", port: x }
+    - { name: "x", target_host: "app-server-02", port: x }
 ```
 
 ### Step 3: Run the Playbook
